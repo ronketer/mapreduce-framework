@@ -1,3 +1,7 @@
+[![C++17](https://img.shields.io/badge/C++-17-00599C?style=flat&logo=cplusplus&logoColor=white)](https://en.cppreference.com/)
+[![pthreads](https://img.shields.io/badge/pthreads-POSIX-blue)]()
+[![Atomic](https://img.shields.io/badge/std::atomic-lock--free-green)]()
+
 # MapReduce Framework — C++17 / pthreads
 
 A multi-threaded MapReduce framework built for the **Operating Systems** course at **Hebrew University**. I implemented the full thread orchestration engine (`MapReduceFramework.cpp`) against a provided API.
@@ -13,6 +17,19 @@ A multi-threaded MapReduce framework built for the **Operating Systems** course 
 - **Live progress tracking** via `getJobState`, reporting stage and percentage computed from atomic counters without stalling worker threads
 
 ## Phase flow
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  Map Phase   │     │ Shuffle Phase│     │ Reduce Phase │
+│              │     │              │     │              │
+│  Thread 0 ──┐│     │              │     │┌── Thread 0  │
+│  Thread 1 ──┼│────▶│   TID 0      │────▶│├── Thread 1  │
+│  Thread N ──┘│     │  (single)    │     │└── Thread N  │
+│              │     │              │     │              │
+│ atomic work- │     │   barrier    │     │ atomic work- │
+│   steal      │     │    sync      │     │   steal      │
+└──────────────┘     └──────────────┘     └──────────────┘
+```
 
 ```
 All threads        TID 0 only         All threads
